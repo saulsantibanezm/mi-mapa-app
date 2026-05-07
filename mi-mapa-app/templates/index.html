@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de México - 32 Estados</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #006847 0%, #CE1126 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        
+        .search-container {
+            background: white;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 700px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #CE1126;
+        }
+        
+        .search-button {
+            padding: 12px 24px;
+            background: #006847;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .search-button:hover {
+            background: #CE1126;
+        }
+        
+        .clear-button {
+            padding: 12px 24px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .clear-button:hover {
+            background: #c82333;
+        }
+        
+        .message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin: 10px auto;
+            max-width: 700px;
+            text-align: center;
+            font-weight: bold;
+            animation: slideDown 0.5s ease;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .info-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px;
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .panel h3 {
+            color: #006847;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #CE1126;
+            padding-bottom: 10px;
+        }
+        
+        .estados-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .estado-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #006847;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        
+        .estado-item:hover {
+            transform: translateX(5px);
+            background: #e9ecef;
+        }
+        
+        .estado-info {
+            flex: 1;
+            cursor: pointer;
+        }
+        
+        .estado-nombre {
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .estado-capital {
+            font-size: 12px;
+            color: #CE1126;
+            margin-top: 3px;
+        }
+        
+        .estado-region {
+            font-size: 11px;
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        .estado-coords {
+            font-size: 10px;
+            color: #999;
+            margin-top: 3px;
+        }
+        
+        .delete-estado {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+        
+        .delete-estado:hover {
+            background: #c82333;
+        }
+        
+        .lista-completa {
+            max-height: 400px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+        }
+        
+        .estado-link {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .estado-link:hover {
+            background: #006847;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+        
+        .map-container {
+            margin: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #006847;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .info-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .lista-completa {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🇲🇽 Mapa de México - 32 Estados</h1>
+        <p>Busca y marca cualquier estado del país</p>
+        <div class="badge">🏛️ Todos los estados mexicanos disponibles</div>
+    </div>
+    
+    <div class="search-container">
+        <form method="post" action="/buscar" class="search-form">
+            <input type="text" 
+                   name="estado" 
+                   class="search-input" 
+                   id="estadoInput"
+                   placeholder="Ejemplo: Jalisco, Nuevo León, Yucatán, Chiapas..."
+                   value="{{ ultima_busqueda if ultima_busqueda else '' }}"
+                   autocomplete="off"
+                   required>
+            <button type="submit" class="search-button">🔍 Buscar y Marcar</button>
+            <button type="button" class="clear-button" onclick="limpiarMapa()">🧹 Limpiar Todo</button>
+        </form>
+        
+        <div style="font-size: 12px; color: #666; text-align: center;">
+            💡 Escribe el nombre de CUALQUIER estado mexicano
+        </div>
+    </div>
+    
+    {% if mensaje %}
+    <div class="message {% if '❌' in mensaje %}error{% endif %}">
+        {{ mensaje }}
+    </div>
+    {% endif %}
+    
+    <div class="info-panel">
+        <div class="panel">
+            <h3>📍 Estados en el Mapa ({{ estados_marcados|length }})</h3>
+            <div class="estados-list">
+                {% if estados_marcados %}
+                    {% for estado in estados_marcados %}
+                    <div class="estado-item">
+                        <div class="estado-info" onclick="centrarEnEstado({{ estado.lat }}, {{ estado.lon }})">
+                            <div class="estado-nombre">{{ estado.nombre }}</div>
+                            <div class="estado-capital">🏛️ Capital: {{ estado.capital }}</div>
+                            <div class="estado-region">📍 Región: {{ estado.region }}</div>
+                            <div class="estado-coords">{{ "%.2f"|format(estado.lat) }}°, {{ "%.2f"|format(estado.lon) }}°</div>
+                        </div>
+                        <form method="post" action="/eliminar_estado" style="margin: 0;">
+                            <input type="hidden" name="nombre" value="{{ estado.nombre }}">
+                            <button type="submit" class="delete-estado">Eliminar</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-message">🗺️ No hay estados marcados. ¡Busca algún estado!</div>
+                {% endif %}
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">{{ estados_marcados|length }}</div>
+                    <div class="stat-label">Estados en mapa</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">{{ total_estados }}</div>
+                    <div class="stat-label">Total de estados</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h3>🇲🇽 Todos los Estados de México</h3>
+            <div class="lista-completa">
+                <div class="estado-link" onclick="buscarEstado('Aguascalientes')">Aguascalientes</div>
+                <div class="estado-link" onclick="buscarEstado('Baja California')">Baja California</div>
+                <div class="estado-link" onclick="buscarEstado('Baja California Sur')">Baja California Sur</div>
+                <div class="estado-link" onclick="buscarEstado('Campeche')">Campeche</div>
+                <div class="estado-link" onclick="buscarEstado('Chiapas')">Chiapas</div>
+                <div class="estado-link" onclick="buscarEstado('Chihuahua')">Chihuahua</div>
+                <div class="estado-link" onclick="buscarEstado('Ciudad de México')">CDMX</div>
+                <div class="estado-link" onclick="buscarEstado('Coahuila')">Coahuila</div>
+                <div class="estado-link" onclick="buscarEstado('Colima')">Colima</div>
+                <div class="estado-link" onclick="buscarEstado('Durango')">Durango</div>
+                <div class="estado-link" onclick="buscarEstado('Guanajuato')">Guanajuato</div>
+                <div class="estado-link" onclick="buscarEstado('Guerrero')">Guerrero</div>
+                <div class="estado-link" onclick="buscarEstado('Hidalgo')">Hidalgo</div>
+                <div class="estado-link" onclick="buscarEstado('Jalisco')">Jalisco</div>
+                <div class="estado-link" onclick="buscarEstado('Estado de México')">Estado de México</div>
+                <div class="estado-link" onclick="buscarEstado('Michoacán')">Michoacán</div>
+                <div class="estado-link" onclick="buscarEstado('Morelos')">Morelos</div>
+                <div class="estado-link" onclick="buscarEstado('Nayarit')">Nayarit</div>
+                <div class="estado-link" onclick="buscarEstado('Nuevo León')">Nuevo León</div>
+                <div class="estado-link" onclick="buscarEstado('Oaxaca')">Oaxaca</div>
+                <div class="estado-link" onclick="buscarEstado('Puebla')">Puebla</div>
+                <div class="estado-link" onclick="buscarEstado('Querétaro')">Querétaro</div>
+                <div class="estado-link" onclick="buscarEstado('Quintana Roo')">Quintana Roo</div>
+                <div class="estado-link" onclick="buscarEstado('San Luis Potosí')">San Luis Potosí</div>
+                <div class="estado-link" onclick="buscarEstado('Sinaloa')">Sinaloa</div>
+                <div class="estado-link" onclick="buscarEstado('Sonora')">Sonora</div>
+                <div class="estado-link" onclick="buscarEstado('Tabasco')">Tabasco</div>
+                <div class="estado-link" onclick="buscarEstado('Tamaulipas')">Tamaulipas</div>
+                <div class="estado-link" onclick="buscarEstado('Tlaxcala')">Tlaxcala</div>
+                <div class="estado-link" onclick="buscarEstado('Veracruz')">Veracruz</div>
+                <div class="estado-link" onclick="buscarEstado('Yucatán')">Yucatán</div>
+                <div class="estado-link" onclick="buscarEstado('Zacatecas')">Zacatecas</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="map-container">
+        {{ mapa_html | safe }}
+    </div>
+    
+    <div class="footer">
+        <p>🏛️ <strong>32 Estados Mexicanos</strong> disponibles | Haz clic en cualquier estado de la lista para marcarlo en el mapa</p>
+        <p>🗺️ Desarrollado con FastAPI + Folium | Mapa completo de México</p>
+    </div>
+    
+    <form id="searchForm" method="post" action="/buscar" style="display: none;">
+        <input type="text" name="estado" id="hiddenEstadoInput">
+    </form>
+    
+    <form id="limpiarForm" method="post" action="/limpiar" style="display: none;"></form>
+    
+    <script>
+        function buscarEstado(nombre) {
+            document.getElementById('hiddenEstadoInput').value = nombre;
+            document.getElementById('searchForm').submit();
+        }
+        
+        function limpiarMapa() {
+            if (confirm('¿Eliminar TODOS los estados del mapa?')) {
+                document.getElementById('limpiarForm').submit();
+            }
+        }
+        
+        function centrarEnEstado(lat, lon) {
+            alert(`📍 Centrando mapa en coordenadas: ${lat.toFixed(2)}°, ${lon.toFixed(2)}°`);
+        }
+        
+        // Buscar al presionar Enter
+        document.getElementById('estadoInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.form.submit();
+            }
+        });
+        
+        // Enfocar el input al cargar
+        document.getElementById('estadoInput')?.focus();
+    </script>
+</body>
+</html>
